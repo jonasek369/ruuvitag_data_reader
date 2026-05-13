@@ -23,6 +23,39 @@ def _i16(b, i):
 def _u8(b, i):
     return b[i]
 
+@dataclass
+class AccelerationData:
+    x_mg: Optional[int]
+    y_mg: Optional[int]
+    z_mg: Optional[int]
+
+    def as_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class RuuviTagData:
+    data_format: int
+    temperature_c: Optional[float]
+    humidity_rh: Optional[float]
+    pressure_pa: Optional[int]
+
+    acceleration: AccelerationData
+
+    battery_v: Optional[float]
+    tx_power_dbm: Optional[int]
+
+    movement_counter: Optional[int]
+    measurement_sequence: Optional[int]
+
+    mac: Optional[str]
+
+    def as_dict(self):
+        return asdict(self)
+
+    def to_json(self, indent: int = 2) -> str:
+        return json.dumps(self.as_dict(), indent=indent)
+
 # https://github.com/ruuvi/ruuvi-sensor-protocols/blob/master/dataformat_05.md
 def decode_rawv2(data: Union[bytes, str]) -> RuuviTagData:
     """
@@ -142,40 +175,6 @@ async def find_kwon_mac_devices(addresses: [str] = None):
 
 
 MAC_REGEX = "[0-9a-f]{2}([:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$"
-
-
-@dataclass
-class AccelerationData:
-    x_mg: Optional[int]
-    y_mg: Optional[int]
-    z_mg: Optional[int]
-
-    def as_dict(self):
-        return asdict(self)
-
-
-@dataclass
-class RuuviTagData:
-    data_format: int
-    temperature_c: Optional[float]
-    humidity_rh: Optional[float]
-    pressure_pa: Optional[int]
-
-    acceleration: AccelerationData
-
-    battery_v: Optional[float]
-    tx_power_dbm: Optional[int]
-
-    movement_counter: Optional[int]
-    measurement_sequence: Optional[int]
-
-    mac: Optional[str]
-
-    def as_dict(self):
-        return asdict(self)
-
-    def to_json(self, indent: int = 2) -> str:
-        return json.dumps(self.as_dict(), indent=indent)
 
 
 ruuvitags_queue = asyncio.Queue[RuuviTagData]()
